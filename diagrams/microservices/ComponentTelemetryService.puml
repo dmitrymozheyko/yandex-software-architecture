@@ -1,0 +1,29 @@
+@startuml
+title  WarmHouse™ Telemetry Service Component Diagram
+
+top to bottom direction
+
+!include ../c4_templates/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse™ System") {
+  Container(TelemetryService, "Telemetry Service", "Kotlin, Spring", "Handles Telemetry Read Operations")
+  ContainerDb(TelemetryDatabase, "Telemetry Database", "Prometheus", "Stores telemetry data")
+}
+
+Container(TelemetryService, "Telemetry Read Service", "Kotlin, Spring") {
+  Component(SensorsSurveyScheduler, "Sensors Survey Scheduler", "Fetch sensors metrics by schedule")
+  Component(TelemetryController, "Telemetry Controller", "Fetch sensors metrics")
+  Component(ServiceLayer, "Service Layer", "Business logic")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+}
+
+System_Ext(Sensor, "Sensors management", "Sensor devices")
+
+
+Rel(SensorsSurveyScheduler,ServiceLayer,"Calls business logic")
+Rel(TelemetryController,ServiceLayer,"Calls business logic")
+Rel(ServiceLayer,Sensor,"Reads sensors metrics")
+Rel(ServiceLayer,RepositoryLayer,"Reads data")
+Rel(RepositoryLayer,TelemetryDatabase,"Reads data")
+
+@enduml

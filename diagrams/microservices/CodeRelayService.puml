@@ -1,0 +1,55 @@
+@startuml
+title  WarmHouse™ Relay Service Code Diagram
+
+Package com.warmhouse.relay {
+    Package dto {
+        Class Relay {
+            -Long id
+            -Long contractId
+            -String address
+            -Int port
+            -Boolean state
+        }
+        Class RelayCommand {
+            -Long relayId
+            -Boolean state
+        }
+    }
+    Package scheduler {
+        Class RelaySurveyScheduler {
+          +void surveyRelays()
+        }
+    }
+    Package controller {
+        Class RelayController {
+          +Relay save(Relay relay)
+          +Boolean deleteById(Long id)
+          +Relay findById(Long id)
+          +List<Relay> findByContractId(Long contractId)
+          +Boolean setStateById(Long id, Boolean state)
+        }
+    }
+    Package listener {
+        Class RelayCommandListener {
+          +void fetchCommands(List<RelayCommand> relayCommands)
+        }
+    }
+    Package service {
+        Class RelaySurveyService {
+          +void fetchCommands(List<RelayCommand> relay)
+        }
+        Class RelayCRUDService {
+            +Relay create(Relay relay)
+            +Relay read(Long id)
+            +Relay update(Relay relay)
+            +Boolean delete(Long id)
+        }
+        Class RelayCommandService {
+          +void sendCommand(RelayCommand relayCommand)
+        }
+    }
+}
+RelaySurveyScheduler -- RelaySurveyService : use
+RelayController -- RelayCRUDService : use
+RelayCommandListener -- RelayCommandService : use
+@enduml

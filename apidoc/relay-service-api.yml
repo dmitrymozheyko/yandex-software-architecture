@@ -1,0 +1,156 @@
+openapi: 3.0.0
+info:
+  title: Relay Service API
+  version: 1.0.0
+paths:
+  '/':
+    post:
+      summary: Сохранение устройства
+      description: Если не передан id устройства, создаётся новое
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        '200':
+          description: Успешное сохранение устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '201':
+          description: Успешное сохранение нового устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '403':
+          description: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/{id}':
+    get:
+      summary: Получение устройства по идентификатору
+      parameters:
+        - in: path
+          name: id
+          description: идентификатор устройства
+          required: true
+          schema:
+            type: number
+            format: integer
+      responses:
+        '200':
+          description: Успешное добавление устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '403':
+          description: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/command/{id}':
+    post:
+      summary: Отправка команды устройству
+      parameters:
+        - in: path
+          name: id
+          description: идентификатор устройства
+          required: true
+          schema:
+            type: number
+            format: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCommand'
+      responses:
+        '200':
+          description: Успешное выполнение команды
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '201':
+          description: Успешное сохранение нового устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '403':
+          description: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      description: Сообщение об ошибке
+      properties:
+        error:
+          type: string
+          description: Текст ошибки
+          example: Устройство с данным адресом уже существует
+    Device:
+      type: object
+      description: Устройство
+      properties:
+        id:
+          type: number
+          format: integer
+          description: Идентификатор устройства
+          example: 7654
+        name:
+          type: string
+          description: Название устройства
+          example: Датчик температуры в котельной
+        type:
+          type: string
+          description: Тип устройства
+          example: Temperatur sensor STS-12GH
+        location:
+          type: string
+          description: Расположение устройства
+          example: Спальня в цокольном этаже
+        value:
+          type: string
+          description: Значение измеряемого параметра
+          example: 23.89
+        unit:
+          type: string
+          description: Единица измерения измеряемого параметра
+          example: Градусы Цельсия
+        status:
+          type: string
+          description: Статус устройства
+          example: active
+    DeviceCommand:
+      type: object
+      description: Команда устройству
+      properties:
+        command:
+          type: string
+          description: Команда устройству
+          example: TURN_PORT_ON
+        parameters:
+          type: string
+          description: Параметры команды устройству
+          example: { "port": 6, "value": 12.9 }
+

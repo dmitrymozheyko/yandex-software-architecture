@@ -1,0 +1,33 @@
+@startuml
+title  WarmHouse™ Relay Service Component Diagram
+
+top to bottom direction
+
+!include ../c4_templates/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse™ System") {
+  Container(RelayService, "Relay Service", "Kotlin, Spring", "Handles Relay Devices")
+  ContainerQueue(Kafka, "Message Broker", "Kafka", "Process message queues")
+  ContainerDb(WarmHouseDatabase, "WarmHouse Database", "Prometheus", "Stores telemetry data")
+}
+
+Container(RelayService, "Relay Read Service", "Kotlin, Spring") {
+  Component(RelaySurveyScheduler, "Relay Survey Scheduler", "Fetch relays states by schedule")
+  Component(RelayController, "Relay Controller", "Manages relay devices")
+  Component(CommandListener, "Command Listener", "Send commands to relays")
+  Component(ServiceLayer, "Service Layer", "Business logic")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+}
+
+System_Ext(Relay, "Relays", "Relay devices")
+
+
+Rel(RelaySurveyScheduler,ServiceLayer,"Calls business logic")
+Rel(RelayController,ServiceLayer,"Calls business logic")
+Rel(ServiceLayer,RepositoryLayer,"Reads data")
+Rel(RepositoryLayer,WarmHouseDatabase,"Reads/Writes data")
+Rel(CommandListener,Kafka,"Fetch commands for relays from queue")
+Rel(CommandListener,ServiceLayer,"Send commands to relays")
+Rel(ServiceLayer,Relay,"Send commands to relays")
+
+@enduml
