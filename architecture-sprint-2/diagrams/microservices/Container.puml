@@ -1,0 +1,49 @@
+@startuml
+title CinemaAbyss™ Container Diagram
+
+top to bottom direction
+
+!include ../c4_templates/C4_Component.puml
+
+Person(desktopUser, "DesktopUser", "A user of the CinemaAbyss™ system")
+Person(mobileUser, "MobileUser", "A mobile application user of the CinemaAbyss™ system")
+Person(admin, "Administrator", "An administrator managing the system")
+System(CinemaAbyssSystem, "CinemaAbyss™ System", "Kubernetes Cluster")
+
+Container_Boundary(CinemaAbyssSystem, "CinemaAbyss System") {
+  Container(serviceMesh, "ServiceMesh", "Istio", "Traffic management")
+  Container(administrationApp, "Administrator Web Application", "Angular", "User accounts administration")
+  Container(desktopUserApp, "Desktop Web Application", "Angular", "Client personal account frontend")
+  Container(administrationService, "Administration Service", "Kotlin, Spring", "Client contracts administration backend")
+  ContainerDb(cinemaAbyssDatabase, "CinemaAbyss Database", "PostgreSQL", "Stores users data")
+  ContainerDb(cinemaAbyssS3, "CinemaAbyss S3 Object Storage", "Minio", "Stores system files")
+'  Container(PersonalAccountService, "Personal Account Service", "Kotlin, Spring", "Client personal account frontend")
+'  Container(RelayService, "Relay Service", "Kotlin, Spring", "Relay devices management")
+'  ContainerQueue(Kafka, "Message Broker", "Kafka", "Process message queues")
+'  ContainerDb(TelemetryDatabase, "Telemetry Database", "Prometheus", "Stores devices telemetry data")
+'  Container(TelemetryService, "Telemetry Service", "Kotlin, Spring", "Sensors management")
+}
+
+'System_Ext(Sensor, "Sensors", "Sensor devices")
+'System_Ext(Relay, "Relays", "Relay active devices")
+'
+Rel(desktopUser, serviceMesh, "HTTPS")
+Rel(mobileUser, serviceMesh, "HTTPS")
+Rel(admin, serviceMesh, "HTTPS")
+Rel(serviceMesh, cinemaAbyssS3, "Static web content")
+Rel(serviceMesh, administrationApp, "Web traffic")
+'Rel(admin, AdministrationApp,"Manages the system")
+Rel(administrationApp,administrationService,"REST API")
+Rel(administrationService,cinemaAbyssDatabase,"Reads/Writes data")
+'Rel(PersonalAccountService,CinemaAbyssDatabase,"Reads/Writes data")
+'Rel(DesktopUserApp,PersonalAccountService,"Reads/Writes personal account data")
+'Rel(PersonalAccountService,AdministrationService,"Authentication/Authorization")
+'Rel(PersonalAccountService,RelayService,"Request relay current state")
+'Rel(PersonalAccountService,Kafka,"Send command to relay")
+'Rel(Kafka,RelayService,"Get commands for relays")
+'Rel(RelayService,Relay,"Send commands to relays")
+'Rel(PersonalAccountService,TelemetryService,"Reads telemetry data")
+'Rel(TelemetryService,TelemetryDatabase,"Reads/Writes telemetry data")
+'Rel(TelemetryService,Sensor,"Fetch sensors metrics")
+
+@enduml
