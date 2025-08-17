@@ -1,0 +1,51 @@
+@startuml
+title  WarmHouse™ ER Diagram
+
+top to bottom direction
+
+class Client {
+  +Long id
+  +String name
+  +String email
+  +String login
+  +String passwordHash
+}
+
+class Contract {
+  +Long id
+  +String number
+  +Date startDate
+  +Date endDate
+  +List<Sensor> sensors
+}
+
+class Sensor {
+    +Long id
+    +String name
+    +String type
+    +String location
+    +String value
+    +String unit
+    +Status status
+    +Timestamp lastUpdated
+    +Teimstamp createdAt
+    +List<SensorStatusHistory> statusHistory
+}
+
+class SensorStatusHistory {
+    +Sensor sensor
+    +Status status
+    +Timestamp statusStart
+}
+
+enum Status {
+    active
+    inactive
+}
+
+Client "1" -- "0..*" Contract : has
+Contract "1" -- "0..*" Sensor : includes
+Sensor "1" -- "0..*" SensorStatusHistory : includes
+Sensor "1" -- "0..*" Status : has
+SensorStatusHistory "1" -- "0..*" Status : has
+@enduml

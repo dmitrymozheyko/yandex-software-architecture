@@ -1,0 +1,25 @@
+@startuml
+title  WarmHouse™ Contracts Web Application Component Diagram
+
+top to bottom direction
+
+!include ../c4_templates/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse™ System") {
+  Container(AdministratorService, "Contracts Backend Application", "Kotlin, Spring", "Provide REST API for frontend")
+  ContainerDb(WarmHouseDatabase, "WarmHouse Database", "PostgreSQL", "Stores contracts data")
+}
+
+Container(AdministratorService, "Contracts Web Application", "Kotlin, Spring") {
+  Component(AuthController, "AuthController", "Handles authentication and authorization")
+  Component(ContractController, "ContractController", "Manages user contracts")
+  Component(ServiceLayer, "Service Layer", "Business logic")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+}
+
+Rel(AuthController,ServiceLayer,"Calls business logic")
+Rel(ContractController,ServiceLayer,"Calls business logic")
+Rel(ServiceLayer,RepositoryLayer,"Reads/Writes data")
+Rel(RepositoryLayer,WarmHouseDatabase,"Reads/Writes user data")
+
+@enduml

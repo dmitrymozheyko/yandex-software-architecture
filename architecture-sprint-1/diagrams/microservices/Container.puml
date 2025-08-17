@@ -1,0 +1,42 @@
+@startuml
+title WarmHouse™ Container Diagram
+
+top to bottom direction
+
+!include ../c4_templates/C4_Component.puml
+
+Person(user, "User", "A user of the WarmHouse™ system")
+Person(admin, "Administrator", "An administrator managing the system")
+System(WarmHouseSystem, "WarmHouse™ System", "System managing devices, sensors, users")
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(AdministrationApp, "Administrator Web Application", "Angular", "Client contracts administration frontend")
+  Container(PersonalAccountApp, "Personal Account Web Application", "Angular", "Client personal account frontend")
+  Container(AdministrationService, "Administration Service", "Kotlin, Spring", "Client contracts administration backend")
+  ContainerDb(WarmHouseDatabase, "WarmHouse Database", "PostgreSQL", "Stores data of client contracts")
+  Container(PersonalAccountService, "Personal Account Service", "Kotlin, Spring", "Client personal account frontend")
+  Container(RelayService, "Relay Service", "Kotlin, Spring", "Relay devices management")
+  ContainerQueue(Kafka, "Message Broker", "Kafka", "Process message queues")
+  ContainerDb(TelemetryDatabase, "Telemetry Database", "Prometheus", "Stores devices telemetry data")
+  Container(TelemetryService, "Telemetry Service", "Kotlin, Spring", "Sensors management")
+}
+
+System_Ext(Sensor, "Sensors", "Sensor devices")
+System_Ext(Relay, "Relays", "Relay active devices")
+
+Rel(user, PersonalAccountApp, "Uses the system")
+Rel(admin, AdministrationApp,"Manages the system")
+Rel(AdministrationApp,AdministrationService,"Reads/Writes contracts data")
+Rel(AdministrationService,WarmHouseDatabase,"Reads/Writes data")
+Rel(PersonalAccountService,WarmHouseDatabase,"Reads/Writes data")
+Rel(PersonalAccountApp,PersonalAccountService,"Reads/Writes personal account data")
+Rel(PersonalAccountService,AdministrationService,"Authentication/Authorization")
+Rel(PersonalAccountService,RelayService,"Request relay current state")
+Rel(PersonalAccountService,Kafka,"Send command to relay")
+Rel(Kafka,RelayService,"Get commands for relays")
+Rel(RelayService,Relay,"Send commands to relays")
+Rel(PersonalAccountService,TelemetryService,"Reads telemetry data")
+Rel(TelemetryService,TelemetryDatabase,"Reads/Writes telemetry data")
+Rel(TelemetryService,Sensor,"Fetch sensors metrics")
+
+@enduml
