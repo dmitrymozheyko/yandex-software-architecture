@@ -45,14 +45,14 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: tests/postman/package-lock.json
+          cache-dependency-path: architecture-sprint-2/tests/postman/package-lock.json
 
       - name: Install Newman and dependencies
-        working-directory: tests/postman
+        working-directory: architecture-sprint-2/tests/postman
         run: npm install
 
       - name: Run API tests
-        working-directory: tests/postman
+        working-directory: architecture-sprint-2/tests/postman
         run: |
 
           docker compose up -d
