@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: proxy
+server:
+  servlet:
+    contextPath: /
+  port: ${PORT}
+proxy:
+  monolith-url: ${MONOLITH_URL}
+  movies-service-url: ${MOVIES_SERVICE_URL}
+  events-service-url: ${EVENTS_SERVICE_URL}
+  gradual-migration: ${GRADUAL_MIGRATION}
+  movies-migration-percent: ${MOVIES_MIGRATION_PERCENT}
