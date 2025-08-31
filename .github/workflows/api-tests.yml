@@ -56,7 +56,6 @@ jobs:
       - name: Run API tests
         working-directory: architecture-sprint-2/tests/postman
         run: |
-          cd architecture-sprint-2
           docker compose up -d
           # Wait for services to be ready
           echo "Waiting for services to be ready..."
