@@ -1,0 +1,75 @@
+@startuml
+title CinemaAbyss™ Container Diagram
+
+top to bottom direction
+
+!include ../c4_templates/C4_Component.puml
+
+Person(desktopUser,"DesktopUser","A user of the CinemaAbyss™ system")
+Person(mobileUser,"MobileUser","A mobile application user of the CinemaAbyss™ system")
+Person(admin,"Administrator","An administrator managing the system")
+System(cinemaAbyssSystem,"CinemaAbyss™ System")
+'System(kubernetesCluster,"Kubernetes Cluster")
+
+Container_Boundary(cinemaAbyssSystem,"CinemaAbyss System") {
+  Boundary(kubernetesCluster,"Kubernetes Cluster") {
+    Container(serviceMesh,"ServiceMesh","Istio","Traffic management")
+    Container(administrationApp,"Administrator Web Application","Angular","User accounts administration")
+    Container(desktopUserApp,"Desktop User Web Application","Angular","Client personal account frontend")
+    Container(administrationService,"Administration Service","Kotlin,Spring","Client contracts administration backend")
+    Container(securityService,"Security Service","Kotlin,Spring","Authentication/Authorisation")
+    Container(personalAccountService,"Personal Account Service","Kotlin,Spring","User personal account frontend")
+    Container(videoPlayerService,"Video Player Service","Kotlin,Spring","Delivery video content from video producers")
+    Container(paymentService,"Payment Service","Kotlin,Spring","Service For Payment Processing")
+    Container(contentRatingService,"Content Rating Service","Kotlin,Spring","Content Rating Service")
+    Container(prometheus,"Prometheus","Collect metrics")
+    Container(grafana,"Grafana","Data Visualization")
+  }
+  ContainerDb(cinemaAbyssDatabase,"CinemaAbyss Database","PostgreSQL","Stores users data")
+  ContainerDb(cinemaAbyssSecurityDatabase,"CinemaAbyss Security Database","PostgreSQL","Stores users security data")
+  ContainerDb(cinemaAbyssS3,"CinemaAbyss S3 Object Storage","Minio","Stores system files")
+  ContainerDb(cinemaAbyssPaymentDatabase,"CinemaAbyss Payment Database","PostgreSQL","Stores payment data")
+  ContainerDb(cinemaAbyssRatingDatabase,"CinemaAbyss Content Rating Database","PostgreSQL","Stores content rating data")
+  ContainerDb(cinemaAbyssVideoPlayerDatabase,"CinemaAbyss Video Player Database","PostgreSQL","Stores content video player data")
+  ContainerQueue(kafka,"Message Broker","Kafka","Process message queues")
+}
+
+System_Ext(paymentSystem,"Payment System","External Payment Acquiring")
+System_Ext(onlineCinemas,"Online Cinemas","External Video Services")
+System_Ext(contentRatingSystem,"ContentRatingSystem","Content Rating System")
+
+Rel(desktopUser,serviceMesh,"HTTPS")
+Rel(mobileUser,serviceMesh,"HTTPS")
+Rel(admin,serviceMesh,"HTTPS")
+Rel(serviceMesh,cinemaAbyssS3,"Static web content")
+Rel(serviceMesh,administrationApp,"Web traffic")
+Rel(serviceMesh,desktopUserApp,"Web traffic")
+Rel(serviceMesh,securityService,"Authentication/Authorisation")
+Rel(administrationApp,administrationService,"REST API")
+Rel(administrationService,cinemaAbyssDatabase,"Reads/Writes data")
+Rel(securityService,cinemaAbyssSecurityDatabase,"Reads/Writes data")
+Rel(desktopUserApp,personalAccountService,"REST API")
+Rel(desktopUserApp,videoPlayerService,"RTMP,HLS,MPEG-DASH,WebRTC,SRT,RTSP")
+Rel(serviceMesh,videoPlayerService,"RTMP,HLS,MPEG-DASH,WebRTC,SRT,RTSP for Mobile App")
+Rel(personalAccountService,cinemaAbyssDatabase,"Reads/Writes data")
+Rel(personalAccountService,securityService,"Reads/Writes security data")
+Rel(administrationService,securityService,"Reads/Writes security data")
+Rel(personalAccountService,cinemaAbyssS3,"Reads/Writes data")
+Rel(administrationService,cinemaAbyssS3,"Reads/Writes data")
+Rel(onlineCinemas,videoPlayerService,"Delivery Video Data")
+Rel(personalAccountService,kafka,"Process Payments")
+Rel(personalAccountService,kafka,"Process Ratings")
+Rel(kafka,paymentService,"Process Payments")
+Rel(paymentService,paymentSystem,"Process Payments")
+Rel(kafka,contentRatingService,"Process Ratings")
+Rel(contentRatingService,contentRatingSystem,"Process Ratings")
+Rel(contentRatingSystem,contentRatingService,"Process Selections")
+Rel(kafka,personalAccountService,"Process Selections")
+Rel(contentRatingService,kafka,"Process Selections")
+Rel(serviceMesh,prometheus,"Metrics")
+Rel(prometheus,grafana,"Get Data")
+Rel(admin,grafana,"View Dashboards")
+Rel(paymentService,cinemaAbyssPaymentDatabase,"Reads/Writes data")
+Rel(contentRatingService,cinemaAbyssRatingDatabase,"Reads/Writes data")
+Rel(videoPlayerService,cinemaAbyssVideoPlayerDatabase,"Reads/Writes data")
+@enduml
